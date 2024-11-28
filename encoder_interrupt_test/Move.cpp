@@ -1,6 +1,7 @@
 #include "SpiEncoder.h"
 #include "Move.h"
-void Movement(int x, int y, int z, int t)
+
+void Movement(int x, int y, int z, int esp_pos, int t)
 {
   int ystep=1 ;
   int x1step=1 ;
@@ -14,9 +15,9 @@ void Movement(int x, int y, int z, int t)
   adjustValue(&X1en, x1max);
   adjustValue(&X2en, x2max);
   adjustValue(&Zen, zmax);
-  int Ypos = map(Yen, 0, ymax, 0, 1280);
-  int X1pos = map(X1en, 0, x1max, 0, 1240);
-  int X2pos = map(X2en, 0, x2max, 0, 1240);
+  int Ypos = map(Yen, 0, ymax, 0, 1265);
+  int X1pos = map(X1en, 0, x1max, 0, 1246);
+  int X2pos = map(X2en, 0, x2max, 0, 1245);
   int Zpos = map(Zen, 0, zmax, 0, 739);
 
   unsigned long timerXY;
@@ -48,12 +49,36 @@ void Movement(int x, int y, int z, int t)
   else {
     digitalWrite(Z_DIR_PIN, HIGH);
   }
-  digitalWrite(Z_STEP_PIN, HIGH);
+  if(pre_z==z){
+    digitalWrite(Z_STEP_PIN, LOW);
+    zstep=target_zstep;
+  }
+  else{
+    digitalWrite(Z_STEP_PIN, HIGH);
+  }
+    
   digitalWrite(Y_STEP_PIN, HIGH);
   digitalWrite(X1_STEP_PIN, HIGH);
   digitalWrite(X2_STEP_PIN, HIGH);
   timerXY = micros();
   timerZ = micros();
+  if(esp_pos ==4){
+    while(zstep < target_zstep){
+    unsigned long currentTime = micros();
+    if (currentTime - timerZ >= 750)
+    {
+      if (zstep < target_zstep)
+      {
+        digitalWrite(Z_STEP_PIN, !digitalRead(Z_STEP_PIN));
+        zstep++;
+      }
+      timerZ = currentTime;
+    }
+    }
+  }
+
+
+  
   while (ystep < target_ystep || x1step < target_x1step || x2step < target_x2step || zstep < target_zstep)
   {
     unsigned long currentTime = micros();
@@ -78,7 +103,7 @@ void Movement(int x, int y, int z, int t)
       }
       timerXY = currentTime;
     }
-    if (currentTime - timerZ >= 1000)
+    if (currentTime - timerZ >= 750)
     {
       if (zstep < target_zstep)
       {
@@ -97,6 +122,8 @@ void Movement(int x, int y, int z, int t)
   x1step = 1;
   x2step = 1;
   zstep = 1;
+  pre_z=z;
+  
 }
 void adjustValue(long *var, long max_var) {
   if (*var > max_var) {

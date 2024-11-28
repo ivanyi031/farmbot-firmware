@@ -14,6 +14,7 @@ volatile long pre_encodez ;
 volatile long encodez;
 int zlimit = 0;
 long int  zmax,zmin;
+int pre_z=0;
 bool ZStatus =0;
 
 volatile long pre_encodex1;
@@ -45,6 +46,7 @@ void setup() {
   pinMode(X1_STEP_PIN,OUTPUT); 
   pinMode(X1_DIR_PIN,OUTPUT);
   pinMode(X1_ENABLE_PIN,OUTPUT);
+  digitalWrite(X1_ENABLE_PIN,LOW);
   pinMode(X2_STEP_PIN,OUTPUT); 
   pinMode(X2_DIR_PIN,OUTPUT);
   pinMode(X2_ENABLE_PIN,OUTPUT);
@@ -58,7 +60,7 @@ void setup() {
   digitalWrite(NSS_PIN, HIGH);
   Serial.begin(9600);
   SPI.begin();
-   TCCR5A = 0;
+  /* TCCR5A = 0;
   TCCR5B = 0;
   TCNT5  = 0;
   // Set the compare match register for 100Hz
@@ -72,10 +74,9 @@ void setup() {
   calibrateZ();
   OCR5A = 2499;
   calibrateY();
-  OCR5A = 2499;
   calibrateX();
    TIMSK5 &= ~(1 << OCIE5A);  // Disable Timer3 compare match interrupt
-   Movement(50,50,500,1);
+   Movement(50,50,500,1);*/
    digitalWrite(LED_PIN, HIGH);
 
   
@@ -92,23 +93,25 @@ void loop() {
     // Call the function to extract values
     extractAndPrintValues(input);
 
-    // Send "Done" message back to the computer
+    // Send "Done" message back to the 
     Serial.println("Done");
   }
-
+  
 }
 void extractAndPrintValues(String input) {
   int xIndex = input.indexOf('(') + 1;
   int comma1 = input.indexOf(',', xIndex);
   int comma2 = input.indexOf(',', comma1 + 1);
   int comma3 = input.indexOf(',', comma2 + 1);
-  int tIndex = input.indexOf(')', comma3);
+  int comma4 = input.indexOf(',', comma3 + 1);
+  int tIndex = input.indexOf(')', comma4);
 
   // Parse x, y, z, t
   int x = input.substring(xIndex, comma1).toInt();
   int y = input.substring(comma1 + 1, comma2).toInt();
   int z = input.substring(comma2 + 1, comma3).toInt();
-  int t = input.substring(comma3 + 1, tIndex).toInt();
+  int esp_pos = input.substring(comma3 + 1, comma4).toInt();
+  int t = input.substring(comma4 + 1, tIndex).toInt();
 
   if(t==0)
   {
@@ -125,14 +128,15 @@ void extractAndPrintValues(String input) {
   TIMSK5 |= (1 << OCIE5A);
 
   calibrateZ();
-  OCR5A = 2499;
+  OCR5A = 12499;
   calibrateY();
+  OCR5A = 24999;
   calibrateX();
    TIMSK5 &= ~(1 << OCIE5A);  // Disable Timer3 compare match interrupt
-   Movement(50,50,500,t);
+   Movement(50,50,500,0,t);
    return;
   }
-  Movement(x,y,z,t);
+  Movement(x,y,z,esp_pos,t);
   // Output the extracted values
 }
 ISR(TIMER5_COMPA_vect)//Interrupt service routine

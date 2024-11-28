@@ -4,7 +4,7 @@
 
 void calibrateY()
 {
-    
+    digitalWrite(Y_DIR_PIN, LOW);
     encodey=ReadEncoder(_Y);
     for(int x =0; x<500;x++) {
     digitalWrite(Y_STEP_PIN,HIGH); 
@@ -15,9 +15,9 @@ void calibrateY()
   YStatus = 1 ;
     while(abs(encodey-pre_encodey)>10){//){
     digitalWrite(Y_STEP_PIN,HIGH); 
-    delayMicroseconds(500); 
+    delayMicroseconds(1000); 
     digitalWrite(Y_STEP_PIN,LOW); 
-    delayMicroseconds(500);
+    delayMicroseconds(1000);
   }
   YStatus=0;
   digitalWrite(Y_DIR_PIN, HIGH);
@@ -30,11 +30,11 @@ void calibrateY()
     delayMicroseconds(1000);
   } 
   YStatus =1;
-   while( abs(encodey-pre_encodey)>5){
+   while( abs(encodey-pre_encodey)>10){
     digitalWrite(Y_STEP_PIN,HIGH); 
-    delayMicroseconds(500); 
+    delayMicroseconds(1000); 
     digitalWrite(Y_STEP_PIN,LOW); 
-    delayMicroseconds(500);
+    delayMicroseconds(1000);
   }
   YStatus = 0;
   ymax=ReadEncoder(_Y);
@@ -87,7 +87,7 @@ void calibrateX()
     encodex1 = ReadEncoder(_X1);
     digitalWrite(X2_DIR_PIN, LOW);
     encodex2 = ReadEncoder(_X2);
-    for(int x = 0; x < 1000; x++) {
+    for(int x = 0; x < 500; x++) {
         digitalWrite(X1_STEP_PIN, HIGH); 
         digitalWrite(X2_STEP_PIN, HIGH); 
         delayMicroseconds(1000); 
@@ -97,8 +97,10 @@ void calibrateX()
     }
     X1Status = 1;
     X2Status = 1;
-    while (abs(encodex1-pre_encodex1)>30) {
+    while (abs(encodex1-pre_encodex1)>100 || abs(encodex2-pre_encodex2>100)) {
+      
         digitalWrite(X1_STEP_PIN, HIGH); 
+      
         digitalWrite(X2_STEP_PIN, HIGH); 
         delayMicroseconds(1000); 
         digitalWrite(X1_STEP_PIN, LOW); 
@@ -113,7 +115,7 @@ void calibrateX()
     encodex2=0;
     digitalWrite(X1_DIR_PIN, LOW);
     digitalWrite(X2_DIR_PIN, HIGH);
-    for(int x = 0; x < 1000; x++) {
+    for(int x = 0; x < 500; x++) {
         digitalWrite(X1_STEP_PIN, HIGH); 
         digitalWrite(X2_STEP_PIN, HIGH);
         delayMicroseconds(1000); 
@@ -123,9 +125,11 @@ void calibrateX()
     }
     X1Status = 1;
     X2Status = 1;
-    while (abs(encodex1-pre_encodex1)>30) {
+    while (abs(encodex1-pre_encodex1)>100 || abs(encodex2-pre_encodex2>100)) {
+       
         digitalWrite(X1_STEP_PIN, HIGH); 
-        digitalWrite(X2_STEP_PIN, HIGH);
+      
+        digitalWrite(X2_STEP_PIN, HIGH); 
         delayMicroseconds(1000); 
         digitalWrite(X1_STEP_PIN, LOW); 
         digitalWrite(X2_STEP_PIN, LOW); 
