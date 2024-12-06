@@ -18,7 +18,7 @@ void Movement(int x, int y, int z, int esp_pos, int t)
   int Ypos = map(Yen, 0, ymax, 0, 1265);
   int X1pos = map(X1en, 0, x1max, 0, 1246);
   int X2pos = map(X2en, 0, x2max, 0, 1245);
-  int Zpos = map(Zen, 0, zmax, 0, 739);
+  int Zpos = map(Zen, 0, zmax, 0, 580);
 
   unsigned long timerXY;
   unsigned long timerZ;
@@ -26,7 +26,7 @@ void Movement(int x, int y, int z, int esp_pos, int t)
   int target_ystep = abs(Ypos - y) * 10;
   int target_x1step = abs(X1pos - x) * 10;
   int target_x2step = abs(X2pos - x) * 10;
-  int target_zstep = abs(Zpos - z) * 25 * 2;
+  int target_zstep = abs(Zpos - (580-z)) * 25 * 2;
 
   if (Ypos > y) {
     digitalWrite(Y_DIR_PIN, LOW);
@@ -43,22 +43,18 @@ void Movement(int x, int y, int z, int esp_pos, int t)
     digitalWrite(X1_DIR_PIN, LOW);
     digitalWrite(X2_DIR_PIN, HIGH);
   }
-  if (Zpos > z) {
-    digitalWrite(Z_DIR_PIN, LOW);
-  }
-  else {
+  if (pre_z > z) {
     digitalWrite(Z_DIR_PIN, HIGH);
   }
-  if(pre_z==z){
-    digitalWrite(Z_STEP_PIN, LOW);
+  else {
+    digitalWrite(Z_DIR_PIN, LOW);
+  }
+  if(pre_z==z && t!=0){
     zstep=target_zstep;
-  }
-  else{
-    digitalWrite(Z_STEP_PIN, HIGH);
-  }
-    
+  }  
   digitalWrite(Y_STEP_PIN, HIGH);
   digitalWrite(X1_STEP_PIN, HIGH);
+  digitalWrite(X2_STEP_PIN, HIGH);
   digitalWrite(X2_STEP_PIN, HIGH);
   timerXY = micros();
   timerZ = micros();
@@ -112,18 +108,35 @@ void Movement(int x, int y, int z, int esp_pos, int t)
       }
       timerZ = currentTime;
     }
+  
   }
+  int ypos = map(ReadEncoder(_Y), 0, ymax, 0, 1265);
+  int x1pos = map(ReadEncoder(_X1), 0, x1max, 0, 1246);
+  int x2pos = map(ReadEncoder(_X2), 0, x2max, 0, 1245);
+  int zpos = map(ReadEncoder(_Z), 0, zmax, 0, 580);
+  /*
+  adjustValue(&Yen, ymax);
+  adjustValue(&X1en, x1max);
+  adjustValue(&X2en, x2max);
+  adjustValue(&Zen, zmax);*/
+  String pos ="("+String(ypos)+","+String(x1pos)+","+String(x2pos)+","+String(z)+")";
+  Serial.println(pos);
   target_ystep = 0 ;
   target_x1step = 0 ;
   target_x2step = 0;
   target_zstep = 0 ;
-
-  ystep = 1;
-  x1step = 1;
-  x2step = 1;
-  zstep = 1;
-  pre_z=z;
   
+//  if(abs(ypos-y)>5 || abs(x1pos-x)>5 ||abs(x2pos-x)>5 || abs(zpos-z)>5)
+//     Movement(x, y, z, esp_pos, t);
+//  else{
+//
+//    ystep = 1;
+//    x1step = 1;
+//    x2step = 1;
+//    zstep = 1;
+//    pre_z=z;
+//  } 
+   pre_z=z;
 }
 void adjustValue(long *var, long max_var) {
   if (*var > max_var) {

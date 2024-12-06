@@ -3,7 +3,7 @@
 #include "SpiEncoder.h"
 #include "Calibration.h"
 #include "Move.h"
-
+#include "Position_tracking.h"
 volatile long pre_encodey ;
 volatile  long encodey;
 int ylimit = 0;
@@ -133,7 +133,7 @@ void extractAndPrintValues(String input) {
   OCR5A = 24999;
   calibrateX();
    TIMSK5 &= ~(1 << OCIE5A);  // Disable Timer3 compare match interrupt
-   Movement(50,50,500,0,t);
+   Movement(50,50,400,0,t);
    return;
   }
   Movement(x,y,z,esp_pos,t);

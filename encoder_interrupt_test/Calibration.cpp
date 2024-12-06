@@ -78,8 +78,6 @@ void calibrateZ()
     }
     ZStatus = 0;
     zmax=ReadEncoder(_Z);
-//    Serial.print("Zmax");
-//    Serial.println(zmax);
 }
 void calibrateX()
 {
